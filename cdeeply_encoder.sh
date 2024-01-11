@@ -16,7 +16,7 @@ Nmax=""
 Lmax=""
 LSmax=""
 
-USAGE="usage: cdeeply_autoencoder [-rows -columns -uniform-dist -normal-dist -no-bias] [-no-encoder | -no-decoder] [-max-weights {N} -max-neurons {N} -max-layers {N} -max-layer-skips {N}] [-I {importances_table_file} -o {output_file}] table_file num_features [num_variational_features]"
+USAGE="usage: bash cdeeply_encoder [-rows -columns -uniform-dist -normal-dist -no-bias] [-no-encoder | -no-decoder] [-max-weights {N} -max-neurons {N} -max-layers {N} -max-layer-skips {N}] [-I {importances_table_file} -o {output_file}] table_file num_features [num_variational_features]"
 
 if [ $# -lt 2 ];  then
     echo $USAGE

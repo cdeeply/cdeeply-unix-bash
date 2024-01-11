@@ -13,7 +13,7 @@ Nmax=""
 Lmax=""
 LSmax=""
 
-USAGE="usage: cdeeply_autoencoder [-rows -columns -no-bias -disallow-IO-connections] [-max-weights {N} -max-neurons {N} -max-layers {N} -max-layer-skips {N}] [-I {importances_table_file} -o {output_file}] table_file output_rows/cols\ne.g. cdeeply_autoencoder myFile.txt 5,7"
+USAGE="usage: bash cdeeply_regressor [-rows -columns -no-bias -disallow-IO-connections] [-max-weights {N} -max-neurons {N} -max-layers {N} -max-layer-skips {N}] [-I {importances_table_file} -o {output_file}] table_file output_rows/cols\ne.g. cdeeply_autoencoder myFile.txt 5,7"
 
 if [ $# -lt 2 ];  then
     echo -e $USAGE

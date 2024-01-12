@@ -1,55 +1,31 @@
 # cdeeply-unix-bash
-UNIX Bash shell interface to C Deeply's neural network generators.  *Note*:  these return neural networks embedded in a web page, not as raw data (since they aren't called from within an application).
+UNIX Bash shell interface to C Deeply's neural network generators.  *These scripts require an internet connection!* as the training is done server-side.
 
-Bash shell scripts to call the supervised (cdeeply_regression) and unsupervised (cdeeply_encoding) methods.
+*Note*:  these scripts return neural networks embedded in a web page, not as raw data (since they aren't called from within an application).  This web page allows you to run the networks on new data sets, or export the neural network to C/Python/... code.
 
 **Shell scripts:**
 
-`errCode = cdeeply_tabular_regressor(&myNN, numInputs, numTargetOutputs, numSamples,`  
-`        &trainingSamples, &importances, sampleTableTranspose, &outputRowOrColumnList,`  
-`        maxWeights, maxHiddenNeurons, maxLayers, maxLayerSkips,`  
-`        ifNNhasBias, ifAllowingInputOutputConnections, &sampleOutputs, &errorMessageString)`
+`bash cdeeply_regressor [-rows -columns -no-bias -disallow-IO-connections] [-max-weights {N} -max-neurons {N} -max-layers {N} -max-layer-skips {N}] [-I {importances_table_file} -o {output_file}] table_file output_rows/cols`
 
-Generates a x->y prediction network using *supervised* training on `trainingSamples`.
-* `trainingSamples` is a `(numInputs+numTargetOutputs)*numSamples`-length table unrolled to type `double *`.
-  * Set `sampleTableTranspose` to `FEATURE_SAMPLE_ARRAY` for `trainingSamples[input_output][sample]` array ordering, or `SAMPLE_FEATURE_ARRAY` for `trainingSamples[sample][input_output]` array ordering.
-  * The rows/columns in `trainingSamples` corresponding to the target outputs are specified by `outputRowOrColumnList`.
-* The optional `importances` argument weights the cost function of the target outputs.  Pass as a `numTargetOutputs*numSamples`-length table (ordered according to `sampleTableTranspose`) unrolled to type `double *`, or `NULL` if this parameter isn't being used.
-* Optional parameters `maxWeights`, `maxHiddenNeurons` and `maxLayers` limit the size of the neural network, and `maxLayerSkips` limits the depth of layer-to-layer connections.  Set unused parameters to `NO_MAX`.
-* Set `ifNNhasBias` to `HAS_BIAS` unless you don't want to allow a bias (i.e. constant) term in each neuron's input, in which case set this to `NO_BIAS`.
-* Set `ifAllowingInputOutputConnections` to `ALLOW_IO_CONNECTIONS` or `NO_IO_CONNECTIONS` depending on whether to allow the input layer to feed directly into the output layer.  (Outliers in new input data might cause wild outputs).
-* `sampleOutputs` is an optional `numTargetOutputs*numSamples`-length table unrolled to type `double *`, to which the training output *as calculated by the server* will be written.  This is mainly a check that the data went through the pipes OK.  If you don't care about this parameter, set it to `NULL`.
-* `errorMessageString` will point to the error message if something went wrong.  (The message should *not* be deallocated after being read).  Set to `NULL` if you don't care about the message.
+Generates a x->y prediction network using *supervised* training on `table_file`.
+* `table_file` is a numeric table of training samples containing *numInputs+numTargetOutputs* rows or columns.
+  * Use the `-rows` option if the target outputs are in rows, and the `-columns` if they are in columns.  `-columns` is the default.
+  * The target output rows/columns from `table_file` are specified in the 2nd mandatory argument: comma separated, no spaces (e.g. `5,7`).
+* An optional `importances_table_file` weights the cost function of the target outputs.  If passed, it should have *numTargetOutputs* rows/columns.
+* Optional parameters `-max-weights`, `-max-neurons` and `-max-layers` limit the size of the neural network (not including input/output neurons), and `-max-layer-skips` limits the depth of layer-to-layer connections.
+* Use the `-no-bias` option if you don't want to allow a bias (i.e. constant) term in each neuron's input.
+* The `-disallow-IO-connections` options prevents the input layer from connecting directly to the output layer (so that outliers in new input data won't cause wild outputs).
+* The `-o` option sets the output HTML filename; the default is `myNN.html`.  This file embeds and runs the neural network.
 
-`errCode = cdeeply_tabular_encoder(CDNN *myNN, numInputs, numFeatures, numVariationalFeatures, numSamples,`  
-`        &trainingSamples, &importances, sampleTableTranspose,`  
-`        ifDoEncoder, ifDoDecoder, variationalDist,`  
-`        maxWeights, maxHiddenNeurons, maxLayers, maxLayerSkips,`  
-`        ifNNhasBias, &sampleOutputs, &errorMessageString)`
+`bash cdeeply_encoder [-rows -columns -uniform-dist -normal-dist -no-bias] [-no-encoder | -no-decoder] [-max-weights {N} -max-neurons {N} -max-layers {N} -max-layer-skips {N}] [-I {importances_table_file} -o {output_file}] table_file num_features [num_variational_features]`
 
-Generates an autoencoder (or an encoder or decoder) using *unsupervised* training on `trainingSamples`.
-* `trainingSamples` is a `numInputs*numSamples`-length table unrolled to type `double *`.
-* `importances` and `sampleTableTranspose` are set the same way as for `cdeeply_tabular_regressor(...)`.
-* The size of the encoding is determined by `numFeatures`.
-  * So-called variational features are extra randomly-distributed inputs used by the decoder, analogous to the extra degrees of freedom a variational autoencoder generates.
-  * `variationalDist` is set to `UNIFORM_DIST` if the variational inputs are uniformly-(0, 1)-distributed, or `NORMAL_DIST` if they are normally distributed (zero mean, unit variance).
-* Set `ifDoEncoder` to either `DO_ENCODER` or `NO_ENCODER`, the latter being for a decoder-only network.
-* Set `ifDoDecoder` to either `DO_DECODER` or `NO_DECODER`, the latter being for an encoder-only network.
-* The last 7 parameters are set the same way as for `cdeeply_tabular_regressor(...)`.
-
-`outputArray = run_CDNN(&myNN, inputArray)`
-
-Runs the neural network on a *single* input sample, returning a pointer to the output of the network.
-* If it is a regressor or there are no variational features, `inputArray` is a `double *` array with `numInputs` elements.
-* Any variational features should be generated randomly from the appropriate distribution, and appended to `inputArray[]`, which now has `numInputs+numVariationalFeatures` elements.
-* The return value is simply the pointer to the last layer of the network, equivalent to `myNN.y[myNN.numLayers-1]`.
-
-`void free_CDNN(CDNN *myNN)`
-
-Frees memory associated with the neural network.
-
-***
-
-This library requires [libcurl](https://curl.se/libcurl/).  To compile, say, example.c using gcc, enter the command:
-
-gcc cdeeply.c example.c -o example -lm -lcurl
+Generates an autoencoder (or an encoder or decoder) using *unsupervised* training on `table_file`.
+* `table_file` is a numeric table of training samples containing *numFeatures* rows or columns.
+* `importances_table_file` option is set the same way as for `cdeeply_regressor`.
+* Set `-rows` if each *sample* is a row in `table_file`, and `-columns` if each sample is a column.  Note:  *this is the opposite convention* from that used by `cdeeply_regressor`.  `-rows` is the default.
+* The size of the encoding is determined by the 2nd mandatory argument `num_features`.
+  * So-called variational features are extra randomly-distributed inputs used by the decoder, analogous to the extra degrees of freedom a variational autoencoder generates.  To include these, pass a third non-option argument `num_variational_features`.
+  * The `-uniform-dist` option causes the network to assume that variational inputs will be uniformly-(0, 1)-distributed, and the `-normal-dist` option causes it to assume they will normally distributed (zero mean, unit variance).  `-normal-dist` is the default.
+* Set `-no-encoder` to generate a decoder-only network.
+* Set `-no-decoder` to generate an encoder-only network.
+* All other parameters operate the same way as for `cdeeply_regressor`.

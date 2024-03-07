@@ -97,4 +97,4 @@ else
     fi
 fi
 
-curl -X POST -L "https://cdeeply.com/myNN.php" -F csvOpen="@$1" -F importancesOpen="$importancesFile" -F rowscols="$RC" -F numFeatures="$2" -F doEncoder="$doE" -F doDecoder="$doD" -F numVPs="$numVPs" -F variationalDist="$variationalDist" -F maxWeights="$Wmax" -F maxNeurons="$Nmax" -F maxLayers="$Lmax" -F maxSkips="$NSmax" -F hasBias="$hasBias" -F submitStatus="Submit" -F NNtype="autoencoder" -o $outFile
+curl -X POST -L "https://cdeeply.com/myNN.php" -F csvOpen="@$1" -F importancesOpen="$importancesFile" -F rowscols="$RC" -F numFeatures="$2" -F doEncoder="$doE" -F doDecoder="$doD" -F numVPs="$numVPs" -F variationalDist="$variationalDist" -F maxWeights="$Wmax" -F maxNeurons="$Nmax" -F maxLayers="$Lmax" -F maxSkips="$NSmax" -F hasBias="$hasBias" -F submitStatus="Submit" -F NNtype="autoencoder" -F formSource="Bash_API" -o $outFile

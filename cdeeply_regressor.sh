@@ -76,4 +76,4 @@ if  [ $# -ne 2 ];  then
     exit 1
 fi
 
-curl -X POST -L "https://cdeeply.com/myNN.php" -F csvOpen="@$1" -F importancesOpen="$importancesFile" -F rowscols="$RC" -F rowcolRange="$2" -F maxWeights="$Wmax" -F maxNeurons="$Nmax" -F maxLayers="$Lmax" -F maxSkips="$NSmax" -F hasBias="$hasBias" -F allowIO="$allowIO" -F submitStatus="Submit" -F NNtype="regressor" -o $outFile
+curl -X POST -L "https://cdeeply.com/myNN.php" -F csvOpen="@$1" -F importancesOpen="$importancesFile" -F rowscols="$RC" -F rowcolRange="$2" -F maxWeights="$Wmax" -F maxNeurons="$Nmax" -F maxLayers="$Lmax" -F maxSkips="$NSmax" -F hasBias="$hasBias" -F allowIO="$allowIO" -F submitStatus="Submit" -F NNtype="regressor" -F formSource="Bash_API" -o $outFile

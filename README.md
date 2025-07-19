@@ -5,7 +5,7 @@ UNIX Bash shell interface to C Deeply's neural network generators.  *These scrip
 
 **Shell scripts:**
 
-`bash cdeeply_regressor [-rows -columns -no-bias -disallow-IO-connections] [-max-weights {N} -max-neurons {N} -max-layers {N} -max-layer-skips {N}] [-I {importances_table_file} -o {output_file}] table_file output_rows/cols`
+`bash cdeeply_regressor [-rows -columns -no-bias -no-negative-weights -sparse-weights -disallow-IO-connections] [-max-weights {N} -max-neurons {N} -max-layers {N} -max-weight-depth {N} -max-activation-rate {N}] [-max-weights-soft-limit -max-neurons-soft-limit -max-activations-soft-limit] [-no-step-AF -no-ReLU-AF -no-ReLU1-AF -no-sigmoid-AF -no-tanh-AF] [-quantize-weights {N N N} -quantize-activations {N N N} [-I {importances_table_file} -o {output_file}] table_file output_rows/cols`
 
 Generates a x->y prediction network using *supervised* training on `table_file`.
 * `table_file` is a numeric table of training samples containing *numInputs+numTargetOutputs* rows or columns.
@@ -20,7 +20,7 @@ Generates a x->y prediction network using *supervised* training on `table_file`.
 * Use the `-no-bias` option if you don't want to allow a bias (i.e. constant) term in each neuron's input.  Set `-no-negative-weights` to keep all weights positive.
 * The `-o` option sets the output HTML filename; the default is `myNN.html`.  This file embeds and runs the neural network.
 
-`bash cdeeply_encoder [-rows -columns -uniform-dist -normal-dist -no-bias] [-no-encoder | -no-decoder] [-max-weights {N} -max-neurons {N} -max-layers {N} -max-layer-skips {N}] [-I {importances_table_file} -o {output_file}] table_file num_features [num_variational_features]`
+`bash cdeeply_encoder [-rows -columns -uniform-dist -normal-dist -no-bias -no-negative-weights -sparse-weights] [-no-encoder | -no-decoder] [-max-weights {N} -max-neurons {N} -max-layers {N} -max-weight-depth {N} -max-activation-rate {N}] [-max-weights-soft-limit -max-neurons-soft-limit -max-activations-soft-limit] [-no-step-AF -no-ReLU-AF -no-ReLU1-AF -no-sigmoid-AF -no-tanh-AF] ['-quantize-weights {N N N} -quantize-activations {N N N} [-I {importances_table_file} -o {output_file}] table_file num_features [num_variational_features]`
 
 Generates an autoencoder (or an encoder or decoder) using *unsupervised* training on `table_file`.
 * `table_file` is a numeric table of training samples containing *numFeatures* rows or columns.

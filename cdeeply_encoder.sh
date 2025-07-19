@@ -10,13 +10,40 @@ outFile="myNN.html"
 numVPs="0"
 variationalDist="normal"
 hasBias="on"
+allowNegativeWs="on"
+sparseWs="off"
 
 Wmax=""
 Nmax=""
 Lmax=""
-LSmax=""
+Dmax=""
+Ymax="1"
 
-USAGE="usage: bash cdeeply_encoder [-rows -columns -uniform-dist -normal-dist -no-bias] [-no-encoder | -no-decoder] [-max-weights {N} -max-neurons {N} -max-layers {N} -max-layer-skips {N}] [-I {importances_table_file} -o {output_file}] table_file num_features [num_variational_features]"
+wHardLimit="on"
+nHardLimit="on"
+yHardLimit="on"
+
+stepAF="on"
+ReLUAF="on"
+ReLU1AF="on"
+sigmoidAF="on"
+tanhAF="on"
+
+quantizeW="off"
+wQuantBits=""
+wQuantZero=""
+wQuantRange=""
+
+quantizeY="off"
+yQuantBits=""
+yQuantZero=""
+yQuantRange=""
+
+USAGE="usage: bash cdeeply_encoder [-rows -columns -uniform-dist -normal-dist -no-bias -no-negative-weights -sparse-weights] [-no-encoder | -no-decoder] \
+[-max-weights {N} -max-neurons {N} -max-layers {N} -max-weight-depth {N} -max-activation-rate {N}] \
+[-max-weights-soft-limit -max-neurons-soft-limit -max-activations-soft-limit] \
+[-no-step-AF -no-ReLU-AF -no-ReLU1-AF -no-sigmoid-AF -no-tanh-AF] ['-quantize-weights {N N N} -quantize-activations {N N N} \
+[-I {importances_table_file} -o {output_file}] table_file num_features [num_variational_features]"
 
 if [ $# -lt 2 ];  then
     echo $USAGE
@@ -50,6 +77,12 @@ while [ ${1:0:1} = "-" ]; do
         -no-bias)
             hasBias="off"
             ;;
+        -no-negative-weights)
+            allowNegativeWs="off"
+            ;;
+        -sparse-weights)
+            sparseWs="on"
+            ;;
         -max-weights)
             Wmax=$2
             shift
@@ -62,8 +95,54 @@ while [ ${1:0:1} = "-" ]; do
             Lmax=$2
             shift
             ;;
-        -max-layer-skips)
-            LSmax=$2
+        -max-weight-depth)
+            Dmax=$2
+            shift
+            ;;
+        -max-activation-rate)
+            Ymax=$2
+            shift
+            ;;
+        -max-weights-soft-limit)
+            wHardLimit='off'
+            ;;
+        -max-neurons-soft-limit)
+            nHardLimit='off'
+            ;;
+        -max-activations-soft-limit)
+            yHardLimit='off'
+            ;;
+        -no-step-AF)
+            stepAF='off'
+            ;;
+        -no-ReLU-AF)
+            ReLUAF='off'
+            ;;
+        -no-ReLU1-AF)
+            ReLU1AF='off'
+            ;;
+        -no-sigmoid-AF)
+            sigmoidAF='off'
+            ;;
+        -no-tanh-AF)
+            tanhAF='off'
+            ;;
+        -quantize-weights)
+            quantizeW='on'
+            wQuantBits=$2
+            wQuantZero=$3
+            wQuantRange=$4
+            shift
+            shift
+            shift
+            ;;
+        -quantize-activations)
+            quantizeY='on'
+            yQuantBits=$2
+            yQuantZero=$3
+            yQuantRange=$4
+            shift
+            shift
             shift
             ;;
         -o)
@@ -97,4 +176,12 @@ else
     fi
 fi
 
-curl -X POST -L "https://cdeeply.com/myNN.php" -F csvOpen="@$1" -F importancesOpen="$importancesFile" -F rowscols="$RC" -F numFeatures="$2" -F doEncoder="$doE" -F doDecoder="$doD" -F numVPs="$numVPs" -F variationalDist="$variationalDist" -F maxWeights="$Wmax" -F maxNeurons="$Nmax" -F maxLayers="$Lmax" -F maxSkips="$NSmax" -F hasBias="$hasBias" -F submitStatus="Submit" -F NNtype="autoencoder" -F formSource="Bash_API" -o $outFile
+curl -X POST -L "https://cdeeply.com/myNN.php" -F samples="@$1" -F importances="$importancesFile" -F rowscols="$RC" \
+        -F numFeatures="$2" -F doEncoder="$doE" -F doDecoder="$doD" -F numVPs="$numVPs" -F variationalDist="$variationalDist" \
+        -F maxWeights="$Wmax" -F maxNeurons="$Nmax" -F maxLayers="$Lmax" -F maxWeightDepth="$Dmax" -F maxActivationRate="$Ymax" \
+        -F maxWeightsHardLimit="$wHardLimit" -F maxNeuronsHardLimit="$nHardLimit" -F maxActivationsHardLimit="$yHardLimit" \
+        -F hasBias="$hasBias" -F allowNegativeWeights="$allowNegativeWs" -F sparseWeights="$sparseWs" \
+        -F step="$stepAF" -F ReLU="$ReLUAF" -F ReLU1="$ReLU1AF" -F sigmoid="$sigmoidAF" -F tanh="$tanhAF" \
+        -F quantizeWeights="$quantizeW" -F wQuantBits="$wQuantBits" -F wQuantZero="$wQuantZero" -F wQuantRange="$wQuantRange" \
+        -F quantizeActivations="$quantizeY" -F yQuantBits="$yQuantBits" -F yQuantZero="$yQuantZero" -F yQuantRange="$yQuantRange" \
+        -F submitStatus="Submit" -F NNtype="autoencoder" -F formSource="Bash_API" -o $outFile
